@@ -1,0 +1,16 @@
+name: tracker_coinmarket
+description: A new Flutter project for tracking cryptocurrency using CoinMarketCap API
+
+publish_to: 'none' # Bu satır, uygulamanın yayınlanmayacağı anlamına gelir, kaldırabilirsin.
+
+dependencies:
+  flutter:
+    sdk: flutter
+  http: ^0.13.6
+
+flutter:
+  uses-material-design: true
+
+# SDK Sürümünü Belirt
+environment:
+  sdk: ">=2.18.0 <3.0.0"  # Flutter 2.18 ve sonrası için bu sürüm aralığı geçerli
