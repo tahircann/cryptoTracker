@@ -1,6 +1,4 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 
 class MaiChatScreen extends StatefulWidget {
   const MaiChatScreen({Key? key}) : super(key: key);
@@ -11,91 +9,151 @@ class MaiChatScreen extends StatefulWidget {
 
 class _MaiChatScreenState extends State<MaiChatScreen> {
   final TextEditingController _controller = TextEditingController();
-  String _response = "";
-  bool _isLoading = false;
 
   Future<void> sendMessage(String message) async {
     setState(() {
-      _isLoading = true;
-      _response = '';
+      _controller.text = message;
     });
-
-    const apiUrl = 'https://openrouter.ai/api/v1/chat/completions';
-    const apiKey = '<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>';
-
-    final headers = {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer $apiKey',
-    };
-
-    final body = jsonEncode({
-      "model": "microsoft/mai-ds-r1:free",
-      "messages": [
-        {"role": "user", "content": message}
-      ],
-    });
-
-    try {
-      final response = await http.post(Uri.parse(apiUrl), headers: headers, body: body);
-
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        final content = data['choices'][0]['message']['content'];
-        setState(() {
-          _response = content;
-        });
-      } else {
-        setState(() {
-          _response = 'Error: ${response.statusCode}\n${response.body}';
-        });
-      }
-    } catch (e) {
-      setState(() {
-        _response = 'Request failed: $e';
-      });
-    } finally {
-      setState(() {
-        _isLoading = false;
-      });
-    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.lightBlue[50],
       appBar: AppBar(
-        title: const Text('MAI Chat (Crypto)'),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.menu, color: Colors.black54),
+          onPressed: () {
+            // TODO: Implement menu action
+          },
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.person_outline, color: Colors.black54),
+            onPressed: () {
+              // TODO: Implement profile action
+            },
+          ),
+        ],
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(20.0),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            const Text(
+              'Merhaba, Kripto Arayanı',
+              style: TextStyle(
+                color: Colors.red,
+                fontSize: 16,
+              ),
+            ),
+            const SizedBox(height: 20),
             TextField(
               controller: _controller,
-              decoration: const InputDecoration(
-                hintText: 'Enter your question about cryptocurrency',
+              decoration: InputDecoration(
+                hintText: 'Buraya Mesajını Yaz',
+                hintStyle: TextStyle(color: Colors.grey[600]),
+                filled: true,
+                fillColor: Colors.white,
+                suffixIcon: Icon(Icons.email_outlined, color: Colors.grey[600]),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(15.0),
+                  borderSide: BorderSide.none,
+                ),
+                contentPadding: const EdgeInsets.symmetric(vertical: 15.0, horizontal: 20.0),
               ),
               onSubmitted: sendMessage,
             ),
-            const SizedBox(height: 10),
-            ElevatedButton(
-              onPressed: _isLoading ? null : () => sendMessage(_controller.text),
-              child: const Text('Send'),
+            const SizedBox(height: 30),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                _buildSuggestionChip('Bitcoin', Colors.purple[50]!, Colors.black87),
+                _buildSuggestionChip('Ethereum', Colors.deepPurpleAccent, Colors.white),
+              ],
             ),
-            const SizedBox(height: 20),
-            _isLoading
-                ? const CircularProgressIndicator()
-                : Expanded(
-              child: SingleChildScrollView(
-                child: Text(
-                  _response,
-                  style: const TextStyle(fontSize: 16),
+            const SizedBox(height: 15),
+            _buildSuggestionChip(
+              'Hangisi Şuan Yükselişte',
+              Colors.black,
+              Colors.white,
+              isWide: true,
+            ),
+            const SizedBox(height: 15),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                _buildSuggestionChip('XRP', Colors.deepPurpleAccent, Colors.white),
+                const SizedBox(width: 15),
+                _buildSuggestionChip('Doge', Colors.grey.shade400, Colors.black87),
+              ],
+            ),
+            const SizedBox(height: 15),
+            Align(
+              alignment: Alignment.centerRight,
+              child: _buildSuggestionChip('Tut/Sat', Colors.purple[50]!, Colors.black87),
+            ),
+            const Spacer(),
+            Center(
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: Colors.black87,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Text(
+                  'Herhangi Birini Seçerek Bir sohbet başlatabilirsin',
+                  style: TextStyle(color: Colors.white, fontSize: 12),
+                  textAlign: TextAlign.center,
                 ),
               ),
             ),
+            const SizedBox(height: 20),
           ],
         ),
       ),
+      bottomNavigationBar: BottomNavigationBar(
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: SizedBox.shrink(),
+            label: 'Sohbet Modu',
+          ),
+          BottomNavigationBarItem(
+            icon: SizedBox.shrink(),
+            label: 'Analiz Modu',
+          ),
+        ],
+        currentIndex: 0,
+        selectedItemColor: Colors.deepPurpleAccent,
+        unselectedItemColor: Colors.grey,
+        showUnselectedLabels: true,
+        backgroundColor: Colors.white,
+        elevation: 5,
+        onTap: (index) {
+          // TODO: Implement navigation logic
+        },
+      ),
+    );
+  }
+
+  Widget _buildSuggestionChip(String label, Color backgroundColor, Color textColor, {bool isWide = false}) {
+    return ElevatedButton(
+      onPressed: () {
+        _controller.text = label;
+      },
+      style: ElevatedButton.styleFrom(
+        backgroundColor: backgroundColor,
+        foregroundColor: textColor,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(30.0),
+        ),
+        padding: EdgeInsets.symmetric(horizontal: isWide ? 80 : 30, vertical: 15),
+        minimumSize: isWide ? const Size(double.infinity, 50) : null,
+      ),
+      child: Text(label),
     );
   }
 }
